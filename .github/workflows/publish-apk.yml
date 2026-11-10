@@ -1,0 +1,42 @@
+name: Publish existing APK
+on:
+  push:
+    branches: [release/publish-v0.2.0]
+    paths: [.github/workflows/publish-apk.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download previously built APK
+        uses: actions/download-artifact@v4
+        with:
+          name: studybell-debug
+          path: release
+          run-id: 42769349679
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+      - name: Publish installable APK to Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          test -s release/app-debug.apk
+          cat > "$RUNNER_TEMP/release-notes.md" <<'EOF'
+          适用于 Android 8.0 及以上版本。
+
+          下载 app-debug.apk，允许浏览器或文件管理器“安装未知应用”后安装。
+
+          应用内打开“铃声与自动响铃设置”，允许“闹钟和提醒”和通知权限。小米设备开启自启动、后台运行，省电策略设为“无限制”，调高系统闹钟音量及应用音量。
+
+          点击“一分钟后测试响铃”，返回桌面并锁屏验证。
+          EOF
+          if gh release view v0.2.0 --repo "$GH_REPO" >/dev/null 2>&1; then
+            gh release upload v0.2.0 release/app-debug.apk --repo "$GH_REPO"
+          else
+            gh release create v0.2.0 release/app-debug.apk --repo "$GH_REPO" --target b03b86034eccc45526020cdd2788f66e9be3d3e6 --title '考研自习铃 v0.2.0' --notes-file "$RUNNER_TEMP/release-notes.md"
+          fi
