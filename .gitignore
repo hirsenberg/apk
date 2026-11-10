@@ -1,0 +1,41 @@
+# Gradle 与构建产物
+.gradle/
+.kotlin/
+**/build/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+*.hprof
+
+# 本地 Android SDK 与配置
+local.properties
+.android/
+/android-sdk/
+/sdk/
+
+# IDE 与系统文件
+.idea/
+*.iml
+.externalNativeBuild/
+.cxx/
+.DS_Store
+Thumbs.db
+
+# 本地签名配置
+*.jks
+*.keystore
+keystore.properties
+
+# Mixkit 音频仅本地构建使用，禁止随源码再分发
+*.mp3
+*.wav
+*.ogg
+*.flac
+*.m4a
+
+# 临时脚本文件及 Python 缓存
+/work/
+__pycache__/
+*.pyc
