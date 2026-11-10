@@ -12,10 +12,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    env:
-      ANDROID_USER_HOME: ${{ runner.temp }}/studybell-android
     steps:
       - uses: actions/checkout@v4
+      - name: Prepare Android user directory
+        run: echo "ANDROID_USER_HOME=$RUNNER_TEMP/studybell-android" >> "$GITHUB_ENV"
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
