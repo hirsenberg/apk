@@ -1,5 +1,42 @@
 # 开发进度
 
+## 2026-11-10：最终Debug APK直接交付
+
+- 按最新要求停止Token、Secret、固定签名和自动化配置，仅使用当前原有Debug密钥构建。
+- 检查现有课程表、自动响铃、音效和权限代码；保持功能范围，不新增功能或测试项目。
+- 重新执行assembleDebug；验证签名、minSdk26、targetSdk33和两段raw音频打包。
+- 再次核对Mixkit官方Sound Effects Free License，完整学习应用作为End Product分发；音效本体不随源码提交。
+- 保留远端README中用户新增的个人项目说明；源码和完整APK分别交付到main与GitHub Releases。
+- 之前暂存的Actions配置移回项目外，不包含在本次源码提交；以下历史记录中提及的自动化尝试不代表本次已启用。
+- 仍需用户在实体平板通过一分钟测试验证MIUI锁屏表现；首次安装允许精确闹钟、通知、自启动和无限制省电。
+
+---
+
+## 2026-11-10：第五阶段自动响铃与可安装交付
+
+实现：
+
+- 新增BellPlanner：按每日启用课程的起止时间生成事件，相同时刻合并一次；新开始课程优先，学习播上课铃，名称含休息／午休／早餐／午餐／晚餐播下课铃，独立下课及当天末课播下课铃，支持跨夜。
+- 新增AlarmScheduler、BellAlarmReceiver、RescheduleReceiver与BellPlaybackService。采用AlarmClockInfo精确唤醒（避免allow-while-idle间隔配额对21:45→21:50交接的影响），一次安排下一个课程边界，触发后继续安排下一个；后台锁屏时用短时前台服务、音频焦点和限时PARTIAL_WAKE_LOCK播放。
+- 去重token、已消费时间及数据库实时校验防止重复／失效事件；旧铃延迟超过两分钟不补响；打开应用恰逢交接时保留尚未消费的刚到期事件。
+- 修改课程／启停／删除后重排；应用恢复、首次启动、重启首次解锁、TIME_SET、TIMEZONE_CHANGED、应用更新与精确闹钟授权后重排。默认仍用Asia/Shanghai。
+- 新增精确闹钟与Android13通知权限状态、系统设置入口、中文MIUI自启动／无限制省电／勿扰引导、一分钟测试与手动重排按钮。首页显示安排状态。
+- 试听及自动响铃都使用现有音量SharedPreferences、系统闹钟音频通道与两段raw资源。完成、错误、超时、音频焦点丢失均释放播放资源；前台通知提供停止按钮。
+- Manifest增加精确闹钟、通知、重启、前台播放与唤醒权限及组件。无网络权限，无新增依赖、无数据库迁移；应用版本0.2.0/versionCode 2，工具链和依赖版本未改变。
+
+验证及交付：
+
+- 实际 `./gradlew :app:assembleDebug :app:testDebugUnitTest --tests com.kaoyan.studybell.alarm.BellPlannerTest --console=plain` 成功（最终23秒）。按用户要求不等完整回归，仅增加／执行4个必要定向用例：17个去重边界、休息与学习音效选择、跨夜与次日、删除／移动／停用后的事件。
+- APK签名验证通过，确认版本号、Android13权限及两段MP3与本地原文件逐字节一致。
+- 本地APK大小10,888,094字节，SHA-256 `32f569220e9d20eade88d2c69ac4c5608021062e28dcee656f82b3361cb9d4af`。
+- 新增GitHub Actions工作流：从官方取得音效并校验、配置SDK、构建和上传APK Artifact；不把音频本体或构建产物提交到源码。发布APK属于完整应用作品，不是音频素材再分发。
+- 当前GitHub连接无法写入Secrets（403 Resource not accessible by integration）；CI使用每次runner的Debug签名，不承诺覆盖安装。可安装发布包使用本地原调试密钥，私钥未上传公开仓库；稳定长期签名管理需之后单独安排。
+- 安装步骤见 `docs/INSTALL.md`；README提供Release和工作流入口。
+
+边界：未连接实体平板，后台／锁屏／重启与MIUI权限必须通过安装后的一分钟按钮现场验证；强行停止后需重开，重启需先首次解锁。无学习统计、假日暂停、星期选择器或其他扩展功能。
+
+---
+
 ## 2026-11-10：第四阶段源码交付准备
 
 - 目标为现有公开仓库 `https://github.com/hirsenberg/apk`；交付前核实仓库为空、无文件和分支，当前账号具有 push 权限。

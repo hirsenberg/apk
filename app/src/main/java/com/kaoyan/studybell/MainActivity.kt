@@ -1,6 +1,9 @@
 package com.kaoyan.studybell
 
 import android.os.Bundle
+import androidx.lifecycle.lifecycleScope
+import com.kaoyan.studybell.alarm.AlarmScheduler
+import kotlinx.coroutines.launch
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +14,11 @@ import com.kaoyan.studybell.ui.ScheduleScreen
 import com.kaoyan.studybell.ui.theme.StudyBellTheme
 
 class MainActivity : ComponentActivity() {
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch { AlarmScheduler.reconcile(applicationContext) }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

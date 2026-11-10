@@ -1,6 +1,7 @@
 package com.kaoyan.studybell.schedule
 
 import android.app.Application
+import com.kaoyan.studybell.alarm.AlarmScheduler
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.kaoyan.studybell.data.Course
@@ -46,7 +47,10 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 when (val result = repository.save(course)) {
-                    is SaveResult.Saved -> _editor.value = null
+                    is SaveResult.Saved -> {
+                        AlarmScheduler.reconcile(getApplication<Application>())
+                        _editor.value = null
+                    }
                     is SaveResult.Rejected -> _editor.value = draft.copy(error = result.message)
                 }
             } catch (e: Exception) {
@@ -62,7 +66,10 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
         _editor.value = draft.copy(busy = true)
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                if (repository.delete(draft.original.id)) _editor.value = null
+                if (repository.delete(draft.original.id)) {
+                    AlarmScheduler.reconcile(getApplication<Application>())
+                    _editor.value = null
+                }
                 else _editor.value = draft.copy(confirmDelete = false, error = "课程已不存在，请返回后重试")
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e

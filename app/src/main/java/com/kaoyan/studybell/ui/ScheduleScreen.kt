@@ -6,6 +6,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.activity.compose.BackHandler
 import com.kaoyan.studybell.data.Course
 import com.kaoyan.studybell.data.CourseRules
+import com.kaoyan.studybell.alarm.AlarmScheduler
 import com.kaoyan.studybell.schedule.minuteText
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -108,7 +109,9 @@ private fun Summary(snapshot: ScheduleSnapshot, onAdd: () -> Unit, onManage: () 
             Button(onClick = onAdd) { Text("新增课程") }
             OutlinedButton(onClick = onManage) { Text("管理课程") }
         }
-        OutlinedButton(onClick = onSound) { Text("铃声设置") }
+        OutlinedButton(onClick = onSound) { Text("铃声与自动响铃设置") }
+        val alarmStatus by AlarmScheduler.status.collectAsStateWithLifecycle()
+        Text(alarmStatus.message, style = MaterialTheme.typography.bodyMedium)
         Text(snapshot.now.format(dateFormat), style = MaterialTheme.typography.titleMedium)
         Text(snapshot.now.format(clockFormat), style = MaterialTheme.typography.displayMedium)
         Text("时区 · ${snapshot.now.zone.id}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)

@@ -15,7 +15,7 @@ class BellPreviewPlayer(context: Context) {
     private val context = context.applicationContext
     private val audioManager = context.getSystemService(AudioManager::class.java)
     private val attributes = AudioAttributes.Builder()
-        .setUsage(AudioAttributes.USAGE_MEDIA)
+        .setUsage(AudioAttributes.USAGE_ALARM)
         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build()
     private val focus = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
         .setAudioAttributes(attributes)
